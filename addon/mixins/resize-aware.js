@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-const { Mixin, run: { next } } = Ember;
+const { Mixin } = Ember;
 const { floor } = Math;
 
 export default Mixin.create({
@@ -14,27 +14,25 @@ export default Mixin.create({
   resizeWidthSensitive: true,
   resizeHeightSensitive: true,
 
-  didInsertElement() {
+  didRender() {
     this._super(...arguments);
 
     if (this.get('resizeEventsEnabled')) {
-      next(this, function() {
-        this.get('resizeService').on('didResize', this, this._handleResizeEvent);
-      });
+      this.get('resizeService').on('didResize', this, this._handleResizeEvent);
     }
 
     if (this.get('resizeDebouncedEventsEnabled')) {
-      next(this, function() {
-        this.get('resizeService').on('debouncedDidResize', this, this._handleDebouncedResizeEvent);
-      });
+      this.get('resizeService').on('debouncedDidResize', this, this._handleDebouncedResizeEvent);
     }
   },
 
   willDestroyElement() {
     this._super(...arguments);
+
     if (this.get('resizeEventsEnabled')) {
       this.get('resizeService').off('didResize', this, this._handleResizeEvent);
     }
+
     if (this.get('resizeDebouncedEventsEnabled')) {
       this.get('resizeService').off('debouncedDidResize', this, this._handleDebouncedResizeEvent);
     }
