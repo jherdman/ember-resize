@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-const { Mixin } = Ember;
+const { Mixin, run: { next } } = Ember;
 const { floor } = Math;
 
 export default Mixin.create({
@@ -16,6 +16,7 @@ export default Mixin.create({
 
   didInsertElement() {
     this._super(...arguments);
+
     if (this.get('resizeEventsEnabled')) {
       this.get('resizeService').on('didResize', this, this._handleResizeEvent);
     }
@@ -42,28 +43,33 @@ export default Mixin.create({
   },
 
   _handleResizeEvent(evt) {
-    const w = floor(this._getComponentSize().width);
-    const h = floor(this._getComponentSize().height);
-    if ((this.get('resizeWidthSensitive') && (this.get('_oldViewWidth') !== w)) ||
-      (this.get('resizeHeightSensitive') && (this.get('_oldViewHeight') !== h))) {
-      this.didResize(w, h, evt);
-      this.setProperties({
-        _oldViewWidth: w,
-        _oldViewHeight: h
-      });
-    }
+    next(this, function() {
+      const w = floor(this._getComponentSize().width);
+      const h = floor(this._getComponentSize().height);
+
+      if ((this.get('resizeWidthSensitive') && (this.get('_oldViewWidth') !== w)) ||
+        (this.get('resizeHeightSensitive') && (this.get('_oldViewHeight') !== h))) {
+        this.didResize(w, h, evt);
+        this.setProperties({
+          _oldViewWidth: w,
+          _oldViewHeight: h
+        });
+      }
+    });
   },
 
   _handleDebouncedResizeEvent(evt) {
-    const w = floor(this._getComponentSize().width);
-    const h = floor(this._getComponentSize().height);
-    if ((this.get('resizeWidthSensitive') && (this.get('_oldViewWidthDebounced') !== w)) ||
-      (this.get('resizeHeightSensitive') && (this.get('_oldViewHeightDebounced') !== h))) {
-      this.debouncedDidResize(w, h, evt);
-      this.setProperties({
-        _oldViewWidthDebounced: w,
-        _oldViewHeightDebounced: h
-      });
-    }
+    next(this, function() {
+      const w = floor(this._getComponentSize().width);
+      const h = floor(this._getComponentSize().height);
+      if ((this.get('resizeWidthSensitive') && (this.get('_oldViewWidthDebounced') !== w)) ||
+        (this.get('resizeHeightSensitive') && (this.get('_oldViewHeightDebounced') !== h))) {
+        this.debouncedDidResize(w, h, evt);
+        this.setProperties({
+          _oldViewWidthDebounced: w,
+          _oldViewHeightDebounced: h
+        });
+      }
+    });
   }
 });
