@@ -18,10 +18,15 @@ export default Mixin.create({
     this._super(...arguments);
 
     if (this.get('resizeEventsEnabled')) {
-      this.get('resizeService').on('didResize', this, this._handleResizeEvent);
+      next(this, function() {
+        this.get('resizeService').on('didResize', this, this._handleResizeEvent);
+      });
     }
+
     if (this.get('resizeDebouncedEventsEnabled')) {
-      this.get('resizeService').on('debouncedDidResize', this, this._handleDebouncedResizeEvent);
+      next(this, function() {
+        this.get('resizeService').on('debouncedDidResize', this, this._handleDebouncedResizeEvent);
+      });
     }
   },
 
@@ -43,33 +48,30 @@ export default Mixin.create({
   },
 
   _handleResizeEvent(evt) {
-    next(this, function() {
-      const w = floor(this._getComponentSize().width);
-      const h = floor(this._getComponentSize().height);
+    const w = floor(this._getComponentSize().width);
+    const h = floor(this._getComponentSize().height);
 
-      if ((this.get('resizeWidthSensitive') && (this.get('_oldViewWidth') !== w)) ||
-        (this.get('resizeHeightSensitive') && (this.get('_oldViewHeight') !== h))) {
-        this.didResize(w, h, evt);
-        this.setProperties({
-          _oldViewWidth: w,
-          _oldViewHeight: h
-        });
-      }
-    });
+    if ((this.get('resizeWidthSensitive') && (this.get('_oldViewWidth') !== w)) ||
+      (this.get('resizeHeightSensitive') && (this.get('_oldViewHeight') !== h))) {
+      this.didResize(w, h, evt);
+      this.setProperties({
+        _oldViewWidth: w,
+        _oldViewHeight: h
+      });
+    }
   },
 
   _handleDebouncedResizeEvent(evt) {
-    next(this, function() {
-      const w = floor(this._getComponentSize().width);
-      const h = floor(this._getComponentSize().height);
-      if ((this.get('resizeWidthSensitive') && (this.get('_oldViewWidthDebounced') !== w)) ||
-        (this.get('resizeHeightSensitive') && (this.get('_oldViewHeightDebounced') !== h))) {
-        this.debouncedDidResize(w, h, evt);
-        this.setProperties({
-          _oldViewWidthDebounced: w,
-          _oldViewHeightDebounced: h
-        });
-      }
-    });
+    const w = floor(this._getComponentSize().width);
+    const h = floor(this._getComponentSize().height);
+
+    if ((this.get('resizeWidthSensitive') && (this.get('_oldViewWidthDebounced') !== w)) ||
+      (this.get('resizeHeightSensitive') && (this.get('_oldViewHeightDebounced') !== h))) {
+      this.debouncedDidResize(w, h, evt);
+      this.setProperties({
+        _oldViewWidthDebounced: w,
+        _oldViewHeightDebounced: h
+      });
+    }
   }
 });
